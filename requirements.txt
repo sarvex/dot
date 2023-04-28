@@ -112,7 +112,7 @@ six==1.16.0
     #   python-dateutil
 tifffile==2022.5.4
     # via scikit-image
-torch==1.9.0
+torch==1.13.1
     # via
     #   dot (setup.cfg)
     #   face-alignment
