@@ -25,7 +25,7 @@ def determine_path():
         sys.exit()
 
 
-sys.path.insert(0, determine_path() + "/models")
+sys.path.insert(0, f"{determine_path()}/models")
 
 # TODO: Move this class inside models
 
@@ -55,11 +55,7 @@ class fsModel(BaseModel):
 
         torch.backends.cudnn.benchmark = True
 
-        if use_gpu:
-            device = torch.device("cuda:0")
-        else:
-            device = torch.device("cpu")
-
+        device = torch.device("cuda:0") if use_gpu else torch.device("cpu")
         if opt_crop_size == 224:
             from .models.fs_networks import Generator_Adain_Upsample
         elif opt_crop_size == 512:
@@ -88,6 +84,4 @@ class fsModel(BaseModel):
         return
 
     def forward(self, img_id, img_att, latent_id, latent_att, for_G=False):
-        img_fake = self.netG.forward(img_att, latent_id)
-
-        return img_fake
+        return self.netG.forward(img_att, latent_id)

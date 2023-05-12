@@ -27,7 +27,7 @@ def query_cameras(n_cams):
             cap.release()
             continue
 
-        for i in range(10):
+        for _ in range(10):
             ret, frame = cap.read()
 
         cam_frames[camid] = frame.copy()
@@ -110,9 +110,7 @@ if __name__ == "__main__":
     with open("config.yaml", "r") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
 
-    cam_frames = query_cameras(config["query_n_cams"])
-
-    if cam_frames:
+    if cam_frames := query_cameras(config["query_n_cams"]):
         selected_cam = select_camera(cam_frames)
         print(f"Selected camera {selected_cam}")
     else:

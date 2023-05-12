@@ -116,8 +116,7 @@ def norm_crop(img, landmark, image_size=112, mode="ffhq"):
         return warped_ffhq, warped_None
     else:
         M, pose_index = estimate_norm(landmark, image_size, mode)
-        warped = cv2.warpAffine(img, M, (image_size, image_size), borderValue=0.0)
-        return warped
+        return cv2.warpAffine(img, M, (image_size, image_size), borderValue=0.0)
 
 
 def square_crop(im, S):
@@ -145,7 +144,7 @@ def transform(data, center, output_size, scale, rotation):
     t3 = trans.SimilarityTransform(rotation=rot)
     t4 = trans.SimilarityTransform(translation=(output_size / 2, output_size / 2))
     t = t1 + t2 + t3 + t4
-    M = t.params[0:2]
+    M = t.params[:2]
     cropped = cv2.warpAffine(data, M, (output_size, output_size), borderValue=0.0)
     return cropped, M
 
@@ -156,7 +155,7 @@ def trans_points2d(pts, M):
         pt = pts[i]
         new_pt = np.array([pt[0], pt[1], 1.0], dtype=np.float32)
         new_pt = np.dot(M, new_pt)
-        new_pts[i] = new_pt[0:2]
+        new_pts[i] = new_pt[:2]
 
     return new_pts
 
@@ -168,14 +167,11 @@ def trans_points3d(pts, M):
         pt = pts[i]
         new_pt = np.array([pt[0], pt[1], 1.0], dtype=np.float32)
         new_pt = np.dot(M, new_pt)
-        new_pts[i][0:2] = new_pt[0:2]
+        new_pts[i][:2] = new_pt[:2]
         new_pts[i][2] = pts[i][2] * scale
 
     return new_pts
 
 
 def trans_points(pts, M):
-    if pts.shape[1] == 2:
-        return trans_points2d(pts, M)
-    else:
-        return trans_points3d(pts, M)
+    return trans_points2d(pts, M) if pts.shape[1] == 2 else trans_points3d(pts, M)

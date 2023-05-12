@@ -116,17 +116,16 @@ class _SynchronizedBatchNorm(_BatchNorm):
         to_reduce = [j for i in to_reduce for j in i]  # flatten
         target_gpus = [i[1].sum.get_device() for i in intermediates]
 
-        sum_size = sum([i[1].sum_size for i in intermediates])
+        sum_size = sum(i[1].sum_size for i in intermediates)
         sum_, ssum = ReduceAddCoalesced.apply(target_gpus[0], 2, *to_reduce)
         mean, inv_std = self._compute_mean_std(sum_, ssum, sum_size)
 
         broadcasted = Broadcast.apply(target_gpus, mean, inv_std)
 
-        outputs = []
-        for i, rec in enumerate(intermediates):
-            outputs.append((rec[0], _MasterMessage(*broadcasted[i * 2 : i * 2 + 2])))
-
-        return outputs
+        return [
+            (rec[0], _MasterMessage(*broadcasted[i * 2 : i * 2 + 2]))
+            for i, rec in enumerate(intermediates)
+        ]
 
     def _compute_mean_std(self, sum_, ssum, size):
         """Compute the mean and standard-deviation with
@@ -212,5 +211,5 @@ class SynchronizedBatchNorm2d(_SynchronizedBatchNorm):
 
     def _check_input_dim(self, input):
         if input.dim() != 4:
-            raise ValueError("expected 4D input (got {}D input)".format(input.dim()))
+            raise ValueError(f"expected 4D input (got {input.dim()}D input)")
         super(SynchronizedBatchNorm2d, self)._check_input_dim(input)

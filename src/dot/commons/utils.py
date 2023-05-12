@@ -39,7 +39,7 @@ def find_images_from_path(path):
         # supported extensions
         ext = ["png", "jpg", "jpeg"]
         files = []
-        [files.extend(glob.glob(path + "**/*." + e, recursive=True)) for e in ext]
+        [files.extend(glob.glob(f"{path}**/*.{e}", recursive=True)) for e in ext]
 
         return files
 
@@ -52,9 +52,7 @@ def find_files_from_path(path: str, ext: List, filter: str = None):
     """
     if os.path.isdir(path):
         files = []
-        [
-            files.extend(glob.glob(path + "**/*." + e, recursive=True)) for e in ext  # type: ignore
-        ]
+        [files.extend(glob.glob(f"{path}**/*.{e}", recursive=True)) for e in ext]
         np.random.shuffle(files)
 
         # filter
@@ -231,8 +229,7 @@ def pad_img(img, target_size, default_pad=0):
         pad_w += int(sw * (w / h) - sw) // 2
     else:
         pad_h += int(sh * (h / w) - sh) // 2
-    out = np.pad(img, [[pad_h, pad_h], [pad_w, pad_w], [0, 0]], "constant")
-    return out
+    return np.pad(img, [[pad_h, pad_h], [pad_w, pad_w], [0, 0]], "constant")
 
 
 def resize(img, size, version="cv"):

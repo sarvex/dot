@@ -71,11 +71,10 @@ class FaceswapCVOption(ModelOption):
 
                 swapped_img = np.array(swapped_img)[..., ::-1].copy()
             except Exception as e:
-                if ignore_error:
-                    print(e)
-                    swapped_img = frame[..., ::-1].copy()
-                else:
+                if not ignore_error:
                     raise e
+                print(e)
+                swapped_img = frame[..., ::-1].copy()
         else:
             swapped_img = frame[..., ::-1].copy()
 

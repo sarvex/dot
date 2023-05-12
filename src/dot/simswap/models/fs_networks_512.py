@@ -62,7 +62,7 @@ class ResnetBlock_Adain(nn.Module):
         elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
+            raise NotImplementedError(f"padding [{padding_type}] is not implemented")
         conv1 += [nn.Conv2d(dim, dim, kernel_size=3, padding=p), InstanceNorm()]
         self.conv1 = nn.Sequential(*conv1)
         self.style1 = ApplyStyle(latent_size, dim)
@@ -77,7 +77,7 @@ class ResnetBlock_Adain(nn.Module):
         elif padding_type == "zero":
             p = 1
         else:
-            raise NotImplementedError("padding [%s] is not implemented" % padding_type)
+            raise NotImplementedError(f"padding [{padding_type}] is not implemented")
         conv2 += [nn.Conv2d(dim, dim, kernel_size=3, padding=p), InstanceNorm()]
         self.conv2 = nn.Sequential(*conv2)
         self.style2 = ApplyStyle(latent_size, dim)
@@ -88,8 +88,7 @@ class ResnetBlock_Adain(nn.Module):
         y = self.act1(y)
         y = self.conv2(y)
         y = self.style2(y, dlatents_in_slice)
-        out = x + y
-        return out
+        return x + y
 
 
 class Generator_Adain_Upsample(nn.Module):
@@ -142,17 +141,15 @@ class Generator_Adain_Upsample(nn.Module):
                 activation,
             )
 
-        # resnet blocks
-        BN = []
-        for i in range(n_blocks):
-            BN += [
-                ResnetBlock_Adain(
-                    512,
-                    latent_size=latent_size,
-                    padding_type=padding_type,
-                    activation=activation,
-                )
-            ]
+        BN = [
+            ResnetBlock_Adain(
+                512,
+                latent_size=latent_size,
+                padding_type=padding_type,
+                activation=activation,
+            )
+            for _ in range(n_blocks)
+        ]
         self.BottleNeck = nn.Sequential(*BN)
 
         if self.deep:

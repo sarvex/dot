@@ -77,20 +77,15 @@ def pose_estimation(
             # get rotation angles
             x = angles[0] * 360
             y = angles[1] * 360
-            z = angles[2] * 360
-
             # head rotation in X axis
             if x < -roll or x > roll:
                 return -1
 
-            # head rotation in Y axis
             if y < -pitch or y > pitch:
                 return -1
 
+            z = angles[2] * 360
+
             # head rotation in Z axis
-            if z < -yaw or z > yaw:
-                return -1
-
-            return 0
-
+            return -1 if z < -yaw or z > yaw else 0
     return -1

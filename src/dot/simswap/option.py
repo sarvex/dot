@@ -156,39 +156,37 @@ class SimswapOption(ModelOption):
         """
 
         detect_results = self.detect_model.get(image, self.crop_size)
-        if detect_results is not None:
-            frame_align_crop_list = detect_results[0]
-            frame_mat_list = detect_results[1]
-            swap_result_list = []
-            frame_align_crop_tenor_list = []
-            for frame_align_crop in frame_align_crop_list:
-                if self.use_gpu:
-                    frame_align_crop_tenor = _totensor(
-                        cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)
-                    )[None, ...].cuda()
-                else:
-                    frame_align_crop_tenor = _totensor(
-                        cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB)
-                    )[None, ...].cpu()
-
-                swap_result = self.model(
-                    None, frame_align_crop_tenor, self.source_image, None, True
-                )[0]
-                swap_result_list.append(swap_result)
-                frame_align_crop_tenor_list.append(frame_align_crop_tenor)
-
-            result_frame = reverse2wholeimage(
-                frame_align_crop_tenor_list,
-                swap_result_list,
-                frame_mat_list,
-                self.crop_size,
-                image,
-                pasring_model=self.net,
-                use_mask=self.use_mask,
-                norm=self.spNorm,
-                use_gpu=self.use_gpu,
-                use_cam=kwargs.get("use_cam", True),
-            )
-            return result_frame
-        else:
+        if detect_results is None:
             return image
+        frame_align_crop_list = detect_results[0]
+        frame_mat_list = detect_results[1]
+        swap_result_list = []
+        frame_align_crop_tenor_list = []
+        for frame_align_crop in frame_align_crop_list:
+            frame_align_crop_tenor = (
+                _totensor(cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB))[
+                    None, ...
+                ].cuda()
+                if self.use_gpu
+                else _totensor(cv2.cvtColor(frame_align_crop, cv2.COLOR_BGR2RGB))[
+                    None, ...
+                ].cpu()
+            )
+            swap_result = self.model(
+                None, frame_align_crop_tenor, self.source_image, None, True
+            )[0]
+            swap_result_list.append(swap_result)
+            frame_align_crop_tenor_list.append(frame_align_crop_tenor)
+
+        return reverse2wholeimage(
+            frame_align_crop_tenor_list,
+            swap_result_list,
+            frame_mat_list,
+            self.crop_size,
+            image,
+            pasring_model=self.net,
+            use_mask=self.use_mask,
+            norm=self.spNorm,
+            use_gpu=self.use_gpu,
+            use_cam=kwargs.get("use_cam", True),
+        )

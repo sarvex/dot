@@ -59,7 +59,7 @@ def camera_pipeline(
     print("=== Control keys ===")
     print("1-9: Change avatar")
     for i, fname in enumerate(source):
-        print(str(i + 1) + ": " + fname)
+        print(f"{str(i + 1)}: {fname}")
 
     # Todo describe controls available
 
@@ -85,47 +85,46 @@ def camera_pipeline(
         frame_index += 1
         ret, frame = cap.read()
         frame = cv2.flip(frame, 1)
-        if ret:
-            tt = TicToc()
+        if not ret:
+            break
+        tt = TicToc()
 
-            timing = {"preproc": 0, "predict": 0, "postproc": 0}
+        timing = {"preproc": 0, "predict": 0, "postproc": 0}
 
-            tt.tic()
+        tt.tic()
 
-            key = cv2.waitKey(1)
-            if 48 < key < 58:
-                show_self = False
-                source_image_i = min(key - 49, len(source) - 1)
-                pic_a = source[source_image_i]
-                img_a_whole = cv2.imread(pic_a)
-                change_option(img_a_whole, **kwargs)
-            elif key == ord("y"):
-                show_self = True
+        key = cv2.waitKey(1)
+        if 48 < key < 58:
+            show_self = False
+            source_image_i = min(key - 49, len(source) - 1)
+            pic_a = source[source_image_i]
+            img_a_whole = cv2.imread(pic_a)
+            change_option(img_a_whole, **kwargs)
+        elif key == ord("y"):
+            show_self = True
 
-            elif key == ord("q"):
-                break
-            elif key == ord("i"):
-                show_fps = not show_fps
+        elif key == ord("q"):
+            break
+        elif key == ord("i"):
+            show_fps = not show_fps
 
-            if not show_self:
-                result_frame = process_image(frame, crop_size=crop_size, **kwargs)  # type: ignore
-                timing["postproc"] = tt.toc()
-                result_frame = post_process_image(result_frame, **kwargs)
+        if not show_self:
+            result_frame = process_image(frame, crop_size=crop_size, **kwargs)  # type: ignore
+            timing["postproc"] = tt.toc()
+            result_frame = post_process_image(result_frame, **kwargs)
 
-                if show_fps:
-                    result_frame = draw_fps(np.array(result_frame), fps, timing)
+            if show_fps:
+                result_frame = draw_fps(np.array(result_frame), fps, timing)
 
-                fps_hist.append(tt.toc(total=True))
-                if len(fps_hist) == 10:
-                    fps = 10 / (sum(fps_hist) / 1000)
-                    fps_hist = []
+            fps_hist.append(tt.toc(total=True))
+            if len(fps_hist) == 10:
+                fps = 10 / (sum(fps_hist) / 1000)
+                fps_hist = []
 
-                cv2.imshow("cam", result_frame)
-
-            else:
-                cv2.imshow("cam", frame)
+            cv2.imshow("cam", result_frame)
 
         else:
-            break
+            cv2.imshow("cam", frame)
+
     cap.stop()
     cv2.destroyAllWindows()

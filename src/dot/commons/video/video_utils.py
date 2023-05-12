@@ -63,9 +63,11 @@ def _crop_and_pose(
 
     try:
         crop_image = image[ytop:ybot, xleft:xright]
-        if estimate_pose:
-            if pose_estimation(image=crop_image, roll=3, pitch=3, yaw=3) != 0:
-                return -1
+        if (
+            estimate_pose
+            and pose_estimation(image=crop_image, roll=3, pitch=3, yaw=3) != 0
+        ):
+            return -1
 
         return cv2.flip(crop_image, 1)
     except Exception as e:
@@ -146,8 +148,8 @@ def video_pipeline(
 
         total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         # trim original video length
-        if duration and (fps * int(duration)) < total_frames:
-            total_frames = fps * int(duration)
+        if duration and fps * duration < total_frames:
+            total_frames = fps * duration
 
         # result video is saved in `save_folder` with name combining source/target files.
         source_base_name = os.path.basename(source)
@@ -166,13 +168,12 @@ def video_pipeline(
         # process each frame individually
         for _ in tqdm(range(total_frames)):
             ret, frame = cap.read()
-            if ret is True:
-                frame = cv2.flip(frame, 1)
-                result_frame = process_image(frame, use_cam=False, crop_size=crop_size, **kwargs)  # type: ignore
-                result_frame = post_process_image(result_frame, **kwargs)
-                video_writer.write(result_frame)
-            else:
+            if ret is not True:
                 break
 
+            frame = cv2.flip(frame, 1)
+            result_frame = process_image(frame, use_cam=False, crop_size=crop_size, **kwargs)  # type: ignore
+            result_frame = post_process_image(result_frame, **kwargs)
+            video_writer.write(result_frame)
         cap.release()
         video_writer.release()

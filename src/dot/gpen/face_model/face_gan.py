@@ -24,7 +24,7 @@ class FaceGAN(object):
         is_norm=True,
         use_gpu=True,
     ):
-        self.mfile = os.path.join(base_dir, "weights", model + ".pth")
+        self.mfile = os.path.join(base_dir, "weights", f"{model}.pth")
         self.n_mlp = 8
         self.is_norm = is_norm
         self.resolution = size

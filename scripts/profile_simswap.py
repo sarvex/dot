@@ -72,7 +72,7 @@ def find_images_from_path(path):
         # supported extensions
         ext = ["png", "jpg", "jpeg"]
         files = []
-        [files.extend(glob.glob(path + "**/*." + e, recursive=True)) for e in ext]
+        [files.extend(glob.glob(f"{path}**/*.{e}", recursive=True)) for e in ext]
 
         return files
 

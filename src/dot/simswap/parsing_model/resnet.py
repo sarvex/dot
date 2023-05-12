@@ -48,8 +48,9 @@ class BasicBlock(nn.Module):
 
 def create_layer_basic(in_chan, out_chan, bnum, stride=1):
     layers = [BasicBlock(in_chan, out_chan, stride=stride)]
-    for i in range(bnum - 1):
-        layers.append(BasicBlock(out_chan, out_chan, stride=1))
+    layers.extend(
+        BasicBlock(out_chan, out_chan, stride=1) for _ in range(bnum - 1)
+    )
     return nn.Sequential(*layers)
 
 

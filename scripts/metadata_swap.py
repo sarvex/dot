@@ -90,7 +90,7 @@ def main(
         print("Error: limit should be >= 4")
         return
 
-    output_data_folder = os.path.join(save_folder + f"Data/{set}/swap/")
+    output_data_folder = os.path.join(f"{save_folder}Data/{set}/swap/")
     df = pd.read_json(metadata, orient="index")
 
     mapping = {
@@ -119,7 +119,7 @@ def main(
         filtered = [os.path.join(local_root_path, p) for p in filtered]
         # split into two lists roughly equal size
         mid_index = round(len(filtered) / 2)
-        src = filtered[0:mid_index]
+        src = filtered[:mid_index]
         tar = filtered[mid_index:]
         swaps.append((src, tar))
 
@@ -182,11 +182,7 @@ def main(
         with open(os.path.join(save_folder, "swaps_failed.json"), "w") as fp:
             json.dump(total_failed, fp)
 
-    # format metadata to appropriate format
-    formatted = format_swaps(total_succeed)
-
-    # save file
-    if formatted:
+    if formatted := format_swaps(total_succeed):
         with open(os.path.join(save_folder, f"{set}_label_swap.json"), "w") as fp:
             json.dump(formatted, fp)
 

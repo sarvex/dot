@@ -21,11 +21,8 @@ class RetinaFaceDetection(object):
     def __init__(self, base_dir, network="RetinaFace-R50", use_gpu=True):
         torch.set_grad_enabled(False)
         cudnn.benchmark = True
-        self.pretrained_path = os.path.join(base_dir, "weights", network + ".pth")
-        if use_gpu:
-            self.device = torch.cuda.current_device()
-        else:
-            self.device = "cpu"
+        self.pretrained_path = os.path.join(base_dir, "weights", f"{network}.pth")
+        self.device = torch.cuda.current_device() if use_gpu else "cpu"
         self.cfg = cfg_re50
         self.net = RetinaFace(cfg=self.cfg, phase="test")
         if use_gpu:
@@ -99,11 +96,7 @@ class RetinaFaceDetection(object):
 
         priorbox = PriorBox(self.cfg, image_size=(im_height, im_width))
         priors = priorbox.forward()
-        if use_gpu:
-            priors = priors.cuda()
-        else:
-            priors = priors.cpu()
-
+        priors = priors.cuda() if use_gpu else priors.cpu()
         prior_data = priors.data
         boxes = decode(loc.data.squeeze(0), prior_data, self.cfg["variance"])
         boxes = boxes * scale / resize
@@ -124,11 +117,7 @@ class RetinaFaceDetection(object):
                 img.shape[2],
             ]
         )
-        if use_gpu:
-            scale1 = scale1.cuda()
-        else:
-            scale1 = scale1.cpu()
-
+        scale1 = scale1.cuda() if use_gpu else scale1.cpu()
         landms = landms * scale1 / resize
         landms = landms.cpu().numpy()
 

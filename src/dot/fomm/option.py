@@ -61,7 +61,7 @@ class FOMMOption(ModelOption):
         self.preview_flip = False
         self.output_flip = False
         self.find_keyframe = False
-        self.is_calibrated = True if self.offline else False
+        self.is_calibrated = self.offline
 
         self.show_landmarks = False
         self.passthrough = False
@@ -79,7 +79,7 @@ class FOMMOption(ModelOption):
         self.display_string = ""
 
     def create_model(self, model_path, **kwargs) -> None:  # type: ignore
-        opt_config = determine_path() + "/config/vox-adv-256.yaml"
+        opt_config = f"{determine_path()}/config/vox-adv-256.yaml"
         opt_checkpoint = model_path
 
         predictor_args = {
@@ -175,11 +175,12 @@ class FOMMOption(ModelOption):
 
         frame = resize(frame, (self.crop_size, self.crop_size))[..., :3]
 
-        if self.find_keyframe:
-            if is_new_frame_better(log, self.source_image, frame, self.predictor):
-                log("Taking new frame!")
-                self.green_overlay = True
-                self.predictor.reset_frames()
+        if self.find_keyframe and is_new_frame_better(
+            log, self.source_image, frame, self.predictor
+        ):
+            log("Taking new frame!")
+            self.green_overlay = True
+            self.predictor.reset_frames()
 
         if self.passthrough:
             out = frame
@@ -245,13 +246,12 @@ class FOMMOption(ModelOption):
         if not self.offline:
             cv2.imshow("FOMM", preview_frame[..., ::-1])
 
-        if out is not None:
-            if not self.opt_no_pad:
-                out = pad_img(out, stream_img_size)
-
-            if self.output_flip:
-                out = cv2.flip(out, 1)
-
-            return out[..., ::-1]
-        else:
+        if out is None:
             return preview_frame[..., ::-1]
+        if not self.opt_no_pad:
+            out = pad_img(out, stream_img_size)
+
+        if self.output_flip:
+            out = cv2.flip(out, 1)
+
+        return out[..., ::-1]

@@ -260,7 +260,7 @@ def decode_landm(pre, priors, variances):
     Return:
         decoded landm predictions
     """
-    landms = torch.cat(
+    return torch.cat(
         (
             priors[:, :2] + pre[:, :2] * variances[0] * priors[:, 2:],
             priors[:, :2] + pre[:, 2:4] * variances[0] * priors[:, 2:],
@@ -270,7 +270,6 @@ def decode_landm(pre, priors, variances):
         ),
         dim=1,
     )
-    return landms
 
 
 def log_sum_exp(x):

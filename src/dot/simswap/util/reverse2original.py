@@ -66,7 +66,7 @@ class SoftErosion(nn.Module):
 
     def forward(self, x):
         x = x.float()
-        for i in range(self.iterations - 1):
+        for _ in range(self.iterations - 1):
             x = torch.min(
                 x,
                 F.conv2d(
@@ -93,9 +93,9 @@ def postprocess(swapped_face, target, target_mask, smooth_mask, device):
 
     soft_face_mask_tensor = soft_face_mask_tensor[None, :, :]
 
-    result = swapped_face * soft_face_mask_tensor + target * (1 - soft_face_mask_tensor)
-
-    return result
+    return swapped_face * soft_face_mask_tensor + target * (
+        1 - soft_face_mask_tensor
+    )
 
 
 def reverse2wholeimage(

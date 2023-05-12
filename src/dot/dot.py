@@ -132,19 +132,16 @@ class DOT:
                 source, int(target), show_fps=show_fps, **kwargs
             )
             return None
-        if isinstance(target, str):
-            if self.use_video:
-                option.generate_from_video(
-                    source, target, self.save_folder, duration, **kwargs
-                )
-                return None
-            elif self.use_image:
-                [swappedDict, rejectedDict] = option.generate_from_image(
-                    source, target, self.save_folder, **kwargs
-                )
-                return [swappedDict, rejectedDict]
-            else:
-                return None
+        if isinstance(target, str) and self.use_video:
+            option.generate_from_video(
+                source, target, self.save_folder, duration, **kwargs
+            )
+            return None
+        elif isinstance(target, str) and self.use_image:
+            [swappedDict, rejectedDict] = option.generate_from_image(
+                source, target, self.save_folder, **kwargs
+            )
+            return [swappedDict, rejectedDict]
         else:
             return None
 

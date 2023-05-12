@@ -155,9 +155,7 @@ class Swap:
 
         # predict landmarks
         landmarks_dlib = self.predictor(image=image, box=bbox)
-        face_landmarks = np.array([[p.x, p.y] for p in landmarks_dlib.parts()])
-
-        return face_landmarks
+        return np.array([[p.x, p.y] for p in landmarks_dlib.parts()])
 
     def _process_face(self, image, r=10):
         """process detected face and landmarks"""
@@ -193,10 +191,9 @@ class Swap:
         r = cv2.boundingRect(mask)
         center = (r[0] + int(r[2] / 2), r[1] + int(r[3] / 2))
 
-        output_cv2 = cv2.seamlessClone(
+        return cv2.seamlessClone(
             warped_src_face, trg_face, mask, center, cv2.NORMAL_CLONE
         )
-        return output_cv2
 
     @classmethod
     def from_config(cls, config: Dict[str, Any]) -> "Swap":

@@ -58,7 +58,7 @@ class BiSeNetOutput(nn.Module):
     def get_params(self):
         wd_params, nowd_params = [], []
         for name, module in self.named_modules():
-            if isinstance(module, nn.Linear) or isinstance(module, nn.Conv2d):
+            if isinstance(module, (nn.Linear, nn.Conv2d)):
                 wd_params.append(module.weight)
                 if module.bias is not None:
                     nowd_params.append(module.bias)
@@ -82,8 +82,7 @@ class AttentionRefinementModule(nn.Module):
         atten = self.conv_atten(atten)
         atten = self.bn_atten(atten)
         atten = self.sigmoid_atten(atten)
-        out = torch.mul(feat, atten)
-        return out
+        return torch.mul(feat, atten)
 
     def init_weight(self):
         for ly in self.children():
@@ -170,8 +169,7 @@ class FeatureFusionModule(nn.Module):
         atten = self.conv2(atten)
         atten = self.sigmoid(atten)
         feat_atten = torch.mul(feat, atten)
-        feat_out = feat_atten + feat
-        return feat_out
+        return feat_atten + feat
 
     def init_weight(self):
         for ly in self.children():
@@ -183,7 +181,7 @@ class FeatureFusionModule(nn.Module):
     def get_params(self):
         wd_params, nowd_params = [], []
         for name, module in self.named_modules():
-            if isinstance(module, nn.Linear) or isinstance(module, nn.Conv2d):
+            if isinstance(module, (nn.Linear, nn.Conv2d)):
                 wd_params.append(module.weight)
                 if module.bias is not None:
                     nowd_params.append(module.bias)
@@ -235,9 +233,7 @@ class BiSeNet(nn.Module):
         wd_params, nowd_params, lr_mul_wd_params, lr_mul_nowd_params = [], [], [], []
         for name, child in self.named_children():
             child_wd_params, child_nowd_params = child.get_params()
-            if isinstance(child, FeatureFusionModule) or isinstance(
-                child, BiSeNetOutput
-            ):
+            if isinstance(child, (FeatureFusionModule, BiSeNetOutput)):
 
                 lr_mul_wd_params += child_wd_params
                 lr_mul_nowd_params += child_nowd_params

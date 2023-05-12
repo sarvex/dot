@@ -80,8 +80,7 @@ def triangular_affine_matrices(vertices, src_points, dst_points):
     for tri_indices in vertices:
         src_tri = np.vstack((src_points[tri_indices, :].T, ones))
         dst_tri = np.vstack((dst_points[tri_indices, :].T, ones))
-        mat = np.dot(src_tri, np.linalg.inv(dst_tri))[:2, :]
-        yield mat
+        yield np.dot(src_tri, np.linalg.inv(dst_tri))[:2, :]
 
 
 def warp_image_3d(src_img, src_points, dst_points, dst_shape, dtype=np.uint8):
@@ -185,6 +184,4 @@ def apply_mask(img, mask):
     :param mask: [0-255] values in mask
     :returns: new image with mask applied
     """
-    masked_img = cv2.bitwise_and(img, img, mask=mask)
-
-    return masked_img
+    return cv2.bitwise_and(img, img, mask=mask)
